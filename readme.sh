@@ -10,16 +10,52 @@ echo "---------------------------------------------------------------------"
 read -p "Enter the ROOT PATH of the plugin you want to update: " ROOT_PATH
 echo "---------------------------------------------------------------------"
 read -p "Version of Plugin to Update readme.txt file: " VERSION
+
+if [[ -z ${VERSION} ]];
+then
+	echo "---------------------------------------------------------------------"
+	read -p "No version was entered. Please enter a version tag: " VERSION
+	echo "---------------------------------------------------------------------"
+	clear
+fi
+
+# If a version still was not entered then exit the script.
+if [[ -z ${VERSION} ]];
+then
+	echo "Program failed!"; exit 1;
+fi;
+
+echo "---------------------------------------------------------------------"
+read -p "Enter the WordPress plugin slug: " SVN_REPO_SLUG
 echo "---------------------------------------------------------------------"
 clear
 
-read -p "Enter the WordPress plugin slug: " SVN_REPO_SLUG
-clear
+if [[ -z ${SVN_REPO_SLUG} ]];
+then
+	echo "---------------------------------------------------------------------"
+	read -p "No plugin slug entered. Please enter the plugin slug given: " SVN_REPO_SLUG
+	echo "---------------------------------------------------------------------"
+	clear
+fi
+
+# If a plugin slug still was not entered then exit the script.
+if [[ -z ${SVN_REPO_SLUG} ]];
+then
+	echo "Program failed!"; exit 1;
+fi;
 
 SVN_REPO_URL="https://plugins.svn.wordpress.org"
 
 # Set WordPress.org Plugin URL
-SVN_REPO=$SVN_REPO_URL"/"$SVN_REPO_SLUG"/"$VERSION"/"
+if [[ ${VERSION} = "trunk" ]]
+then
+	echo "---------------------------------------------------------------------"
+	echo "Please Note: You are updating the development version of the plugin."
+
+	SVN_REPO=$SVN_REPO_URL"/"$SVN_REPO_SLUG"/trunk/"
+else
+	SVN_REPO=$SVN_REPO_URL"/"$SVN_REPO_SLUG"/tags/"$VERSION"/"
+fi;
 
 # Set temporary SVN folder for WordPress.
 TEMP_SVN_REPO=${SVN_REPO_SLUG}"-svn"
@@ -30,13 +66,16 @@ rm -Rf $ROOT_PATH$TEMP_SVN_REPO
 # CHECKOUT SVN DIR IF NOT EXISTS
 if [[ ! -d $TEMP_SVN_REPO ]];
 then
+	echo "---------------------------------------------------------------------"
 	echo "Checking out WordPress.org plugin repository."
+	echo "---------------------------------------------------------------------"
+
 	svn checkout $SVN_REPO $TEMP_SVN_REPO || { echo "Unable to checkout repo."; exit 1; }
 fi
 
+echo "---------------------------------------------------------------------"
 read -p "Enter your GitHub username: " GITHUB_USER
-clear
-
+echo "---------------------------------------------------------------------"
 read -p "Now enter the repository slug: " GITHUB_REPO_NAME
 clear
 
@@ -50,7 +89,9 @@ rm -Rf $ROOT_PATH$TEMP_GITHUB_REPO
 GIT_REPO="https://github.com/"${GITHUB_USER}"/"${GITHUB_REPO_NAME}".git"
 
 # Clone Git repository
+echo "---------------------------------------------------------------------"
 echo "Cloning GIT repository from GitHub"
+echo "---------------------------------------------------------------------"
 git clone --progress $GIT_REPO $TEMP_GITHUB_REPO || { echo "Unable to clone repo."; exit 1; }
 
 # Move into the temporary GitHub folder
@@ -59,7 +100,9 @@ cd $ROOT_PATH$TEMP_GITHUB_REPO
 # List Branches
 clear
 git fetch origin
+echo "---------------------------------------------------------------------"
 echo "Which branch contains the updated readme.txt file?"
+echo "---------------------------------------------------------------------"
 git branch -r || { echo "Unable to list branches."; exit 1; }
 echo ""
 read -p "origin/" BRANCH
@@ -81,12 +124,18 @@ rm -f .jscrsrc
 rm -f .jshintrc
 rm -f phpunit.xml.dist
 rm -f .editorconfig
+rm -Rf assets/
+rm -Rf includes/
+rm -Rf languages/
+rm -Rf template/
+rm -Rf wp-update-php/
 rm -f *.js
 rm -f *.json
 rm -f *.xml
 rm -f *.md
 rm -f *.yml
 rm -f *.neon
+rm -f *.gif
 rm -f *.png
 rm -f *.jpg
 rm -f *.sh
@@ -107,14 +156,17 @@ svn add --force "readme.txt"
 
 # SVN Commit
 clear
+echo "---------------------------------------------------------------------"
 echo "Showing SVN status."
+echo "---------------------------------------------------------------------"
 svn status --show-updates
 
 # Deploy Update
-echo ""
 echo "Committing readme.txt file to WordPress.org..."
+echo "---------------------------------------------------------------------"
 svn commit -m "Updated readme.txt file for version "${VERSION}"" || {
 	echo "Unable to commit. Loading last log.";
+	echo "---------------------------------------------------------------------"
 	svn log -l 1
 	exit 1;
 }
@@ -123,14 +175,16 @@ read -p "readme.txt file was updated. Press [ENTER] to clean up."
 clear
 
 # Remove the temporary directories
+echo "---------------------------------------------------------------------"
 echo "Cleaning Up..."
+echo "---------------------------------------------------------------------"
 cd "../"
 rm -Rf $ROOT_PATH$TEMP_GITHUB_REPO
 rm -Rf $ROOT_PATH$TEMP_SVN_REPO
 
 # Done
 echo "Update Done."
-echo ""
+echo "---------------------------------------------------------------------"
 read -p "Press [ENTER] to close program."
 
 clear
