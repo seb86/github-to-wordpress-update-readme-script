@@ -8,6 +8,16 @@ echo "---------------------------------------------------------------------"
 echo "                  WordPress.org readme.txt Updater                   "
 echo "---------------------------------------------------------------------"
 read -p "Enter the ROOT PATH of the plugin you want to update: " ROOT_PATH
+
+if [[ -d $ROOT_PATH ]]; then
+	echo "---------------------------------------------------------------------"
+	echo "New ROOT PATH has been set."
+	cd $ROOT_PATH
+elif [[ -f $ROOT_PATH ]]; then
+	echo "---------------------------------------------------------------------"
+	read -p "$ROOT_PATH is a file. Please enter a ROOT PATH: " ROOT_PATH
+fi
+
 echo "---------------------------------------------------------------------"
 read -p "Version of Plugin to Update readme.txt file: " VERSION
 
@@ -61,7 +71,7 @@ fi;
 TEMP_SVN_REPO=${SVN_REPO_SLUG}"-svn"
 
 # Delete old SVN cache just incase it was not cleaned before after the last release.
-rm -Rf $ROOT_PATH$TEMP_SVN_REPO
+rm -Rf $TEMP_SVN_REPO
 
 # CHECKOUT SVN DIR IF NOT EXISTS
 if [[ ! -d $TEMP_SVN_REPO ]];
@@ -83,7 +93,7 @@ clear
 TEMP_GITHUB_REPO=${GITHUB_REPO_NAME}"-git"
 
 # Delete old GitHub cache just incase it was not cleaned before after the last release.
-rm -Rf $ROOT_PATH$TEMP_GITHUB_REPO
+rm -Rf $TEMP_GITHUB_REPO
 
 # Set GitHub Repository URL
 GIT_REPO="https://github.com/"${GITHUB_USER}"/"${GITHUB_REPO_NAME}".git"
@@ -95,7 +105,7 @@ echo "---------------------------------------------------------------------"
 git clone --progress $GIT_REPO $TEMP_GITHUB_REPO || { echo "Unable to clone repo."; exit 1; }
 
 # Move into the temporary GitHub folder
-cd $ROOT_PATH$TEMP_GITHUB_REPO
+cd $TEMP_GITHUB_REPO
 
 # List Branches
 clear
@@ -179,8 +189,8 @@ echo "---------------------------------------------------------------------"
 echo "Cleaning Up..."
 echo "---------------------------------------------------------------------"
 cd "../"
-rm -Rf $ROOT_PATH$TEMP_GITHUB_REPO
-rm -Rf $ROOT_PATH$TEMP_SVN_REPO
+rm -Rf $TEMP_GITHUB_REPO
+rm -Rf $TEMP_SVN_REPO
 
 # Done
 echo "Update Done."

@@ -24,6 +24,8 @@ All you have to do is download the script readme.sh from this repository and pla
 2. Run: ```sh readme.sh```
 3. Follow the prompts.
 
+> If you wish to update the development repository of the plugin on WordPress.org simply enter the word `trunk` when it asks for the version of the plugin you want to update.
+
 ## Final notes
 
 - This will checkout the remote version of your readme.txt from your Github Repo.
