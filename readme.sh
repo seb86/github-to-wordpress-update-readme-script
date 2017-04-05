@@ -71,7 +71,7 @@ fi;
 TEMP_SVN_REPO=${SVN_REPO_SLUG}"-svn"
 
 # Delete old SVN cache just incase it was not cleaned before after the last release.
-rm -Rf $TEMP_SVN_REPO
+rm -Rf $ROOT_PATH$TEMP_SVN_REPO
 
 # CHECKOUT SVN DIR IF NOT EXISTS
 if [[ ! -d $TEMP_SVN_REPO ]];
@@ -93,10 +93,24 @@ clear
 TEMP_GITHUB_REPO=${GITHUB_REPO_NAME}"-git"
 
 # Delete old GitHub cache just incase it was not cleaned before after the last release.
-rm -Rf $TEMP_GITHUB_REPO
+rm -Rf $ROOT_PATH$TEMP_GITHUB_REPO
+
+echo "---------------------------------------------------------------------"
+echo "Is the line secure?"
+echo "---------------------------------------------------------------------"
+echo " - y for SSH"
+echo " - n for HTTPS"
+read -p "" SECURE_LINE
 
 # Set GitHub Repository URL
-GIT_REPO="https://github.com/"${GITHUB_USER}"/"${GITHUB_REPO_NAME}".git"
+if [[ ${SECURE_LINE} = "y" ]]
+then
+	GIT_REPO="git@github.com:"${GITHUB_USER}"/"${GITHUB_REPO_NAME}".git"
+else
+	GIT_REPO="https://github.com/"${GITHUB_USER}"/"${GITHUB_REPO_NAME}".git"
+fi;
+
+clear
 
 # Clone Git repository
 echo "---------------------------------------------------------------------"
@@ -105,17 +119,28 @@ echo "---------------------------------------------------------------------"
 git clone --progress $GIT_REPO $TEMP_GITHUB_REPO || { echo "Unable to clone repo."; exit 1; }
 
 # Move into the temporary GitHub folder
-cd $TEMP_GITHUB_REPO
+cd $ROOT_PATH$TEMP_GITHUB_REPO
 
 # List Branches
 clear
-git fetch origin
 echo "---------------------------------------------------------------------"
 echo "Which branch contains the updated readme.txt file?"
 echo "---------------------------------------------------------------------"
+
+# IF REMOTE WAS LEFT EMPTY THEN FETCH ORIGIN BY DEFAULT
+if [[ -z ${ORIGIN} ]]
+then
+	git fetch origin
+
+	# Set ORIGIN as origin if left blank
+	ORIGIN=origin
+else
+	git fetch ${ORIGIN}
+fi;
+
 git branch -r || { echo "Unable to list branches."; exit 1; }
 echo ""
-read -p "origin/" BRANCH
+read -p ${ORIGIN}"/"${BRANCH}
 
 # Switch Branch
 echo "Switching to branch"
@@ -189,8 +214,8 @@ echo "---------------------------------------------------------------------"
 echo "Cleaning Up..."
 echo "---------------------------------------------------------------------"
 cd "../"
-rm -Rf $TEMP_GITHUB_REPO
-rm -Rf $TEMP_SVN_REPO
+rm -Rf $ROOT_PATH$TEMP_GITHUB_REPO
+rm -Rf $ROOT_PATH$TEMP_SVN_REPO
 
 # Done
 echo "Update Done."
