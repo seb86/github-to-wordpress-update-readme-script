@@ -3,6 +3,10 @@ Sometimes you just want to update the readme.txt file so that you are up to date
 
 This script is dummy proof. No need to configure anything. Just run the script and follow the instructions as you go along.
 
+## Features
+* Supports HTTPS and SSH connections.
+* Specify your remote when fetching from your repository.
+
 ## What does the script do?
 This script will pull down your remote GIT and the SVN you want to update, copy the readme.txt file and commit it to WordPress.org.
 
