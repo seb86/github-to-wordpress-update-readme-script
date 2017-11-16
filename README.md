@@ -35,3 +35,8 @@ All you have to do is download the script readme.sh from this repository and pla
 - This will checkout the remote version of your readme.txt from your Github Repo.
 - I have tested this on Mac only.
 - Use at your own risk of course :)
+
+### Support Sébastien's Open Source Projects!
+If you'd like me to keep producing free and open source software or if you use this script and find it useful then please consider [paying for an hour](https://www.paypal.me/CodeBreaker/100eur) of my time. I'll spend two hours on open source for each contribution.
+
+You can find more of my Free and Open Source scripts on [GitHub](https://github.com/seb86)
