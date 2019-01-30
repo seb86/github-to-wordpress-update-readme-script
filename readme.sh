@@ -1,6 +1,5 @@
 #!/bin/sh
 
-set -e
 clear
 
 # ASK INFO
@@ -21,44 +20,39 @@ fi
 echo "---------------------------------------------------------------------"
 read -p "Version of Plugin to Update readme.txt file: " VERSION
 
-if [[ -z ${VERSION} ]];
-then
+if [[ -z ${VERSION} ]]; then
 	echo "---------------------------------------------------------------------"
 	read -p "No version was entered. Please enter a version tag: " VERSION
-	echo "---------------------------------------------------------------------"
 	clear
 fi
 
 # If a version still was not entered then exit the script.
-if [[ -z ${VERSION} ]];
-then
+if [[ -z ${VERSION} ]]; then
 	echo "Program failed!"; exit 1;
 fi;
 
 echo "---------------------------------------------------------------------"
 read -p "Enter the WordPress plugin slug: " SVN_REPO_SLUG
-echo "---------------------------------------------------------------------"
 clear
 
-if [[ -z ${SVN_REPO_SLUG} ]];
-then
+if [[ -z ${SVN_REPO_SLUG} ]]; then
 	echo "---------------------------------------------------------------------"
 	read -p "No plugin slug entered. Please enter the plugin slug given: " SVN_REPO_SLUG
-	echo "---------------------------------------------------------------------"
 	clear
 fi
 
 # If a plugin slug still was not entered then exit the script.
-if [[ -z ${SVN_REPO_SLUG} ]];
-then
-	echo "Program failed!"; exit 1;
+if [[ -z ${SVN_REPO_SLUG} ]]; then
+	echo "---------------------------------------------------------------------"
+	echo "Program failed!";
+	echo "---------------------------------------------------------------------"
+	exit 1;
 fi;
 
 SVN_REPO_URL="https://plugins.svn.wordpress.org"
 
 # Set WordPress.org Plugin URL
-if [[ ${VERSION} = "trunk" ]]
-then
+if [[ ${VERSION} = "trunk" ]]; then
 	echo "---------------------------------------------------------------------"
 	echo "Please Note: You are updating the development version of the plugin."
 
@@ -74,8 +68,7 @@ TEMP_SVN_REPO=${SVN_REPO_SLUG}"-svn"
 rm -Rf $ROOT_PATH$TEMP_SVN_REPO
 
 # CHECKOUT SVN DIR IF NOT EXISTS
-if [[ ! -d $TEMP_SVN_REPO ]];
-then
+if [[ ! -d $TEMP_SVN_REPO ]]; then
 	echo "---------------------------------------------------------------------"
 	echo "Checking out WordPress.org plugin repository."
 	echo "---------------------------------------------------------------------"
@@ -103,8 +96,7 @@ echo " - n for HTTPS"
 read -p "" SECURE_LINE
 
 # Set GitHub Repository URL
-if [[ ${SECURE_LINE} = "y" ]]
-then
+if [[ ${SECURE_LINE} = "y" ]]; then
 	GIT_REPO="git@github.com:"${GITHUB_USER}"/"${GITHUB_REPO_NAME}".git"
 else
 	GIT_REPO="https://github.com/"${GITHUB_USER}"/"${GITHUB_REPO_NAME}".git"
@@ -121,15 +113,15 @@ git clone --progress $GIT_REPO $TEMP_GITHUB_REPO || { echo "Unable to clone repo
 # Move into the temporary GitHub folder
 cd $ROOT_PATH$TEMP_GITHUB_REPO
 
-# List Branches
 clear
+
+# Which Remote?
 echo "---------------------------------------------------------------------"
-echo "Which branch contains the updated readme.txt file?"
+read -p "Which remote are we fetching? Default is 'origin'" ORIGIN
 echo "---------------------------------------------------------------------"
 
 # IF REMOTE WAS LEFT EMPTY THEN FETCH ORIGIN BY DEFAULT
-if [[ -z ${ORIGIN} ]]
-then
+if [[ -z ${ORIGIN} ]]; then
 	git fetch origin
 
 	# Set ORIGIN as origin if left blank
@@ -138,48 +130,76 @@ else
 	git fetch ${ORIGIN}
 fi;
 
+clear
+
+# List Branches
+echo "---------------------------------------------------------------------"
 git branch -r || { echo "Unable to list branches."; exit 1; }
-echo ""
-read -p ${ORIGIN}"/"${BRANCH}
+echo "---------------------------------------------------------------------"
+read -p "Which branch contains the updated readme.txt file? /" BRANCH
 
 # Switch Branch
-echo "Switching to branch"
-git checkout ${BRANCH} || { echo "Unable to checkout branch."; exit 1; }
+echo "---------------------------------------------------------------------"
+echo "Switching to branch "${BRANCH}
+
+# IF BRANCH WAS LEFT EMPTY THEN FETCH "master" BY DEFAULT
+if [[ -z ${BRANCH} ]]; then
+	BRANCH=master
+else
+	git checkout ${BRANCH} || { echo "Unable to checkout branch."; exit 1; }
+fi;
+
+echo "---------------------------------------------------------------------"
+read -p "Press [ENTER] to remove unwanted files before release."
 
 # Remove unwanted files and folders
-echo "Removing unwanted files"
+echo "---------------------------------------------------------------------"
+echo "Removing unwanted files..."
 rm -Rf .git
 rm -Rf .github
+rm -Rf .wordpress-org
 rm -Rf tests
+rm -Rf assets
 rm -Rf apigen
+rm -Rf includes
+rm -Rf languages
+rm -Rf template
+rm -Rf node_modules
+rm -Rf src
+rm -Rf wp-update-php
+rm -Rf .idea/*
+rm -f .babelrc
+rm -f .editorconfig
+rm -f .eslintignore
+rm -f .eslintrc.json
 rm -f .gitattributes
 rm -f .gitignore
 rm -f .gitmodules
+rm -f .idea
 rm -f .jscrsrc
 rm -f .jshintrc
-rm -f phpunit.xml.dist
 rm -f .editorconfig
-rm -Rf assets/
-rm -Rf includes/
-rm -Rf languages/
-rm -Rf template/
-rm -Rf wp-update-php/
-rm -f *.js
-rm -f *.json
-rm -f *.xml
-rm -f *.md
-rm -f *.yml
-rm -f *.neon
+rm -f apigen.neon
+rm -f *.lock
+rm -f *.dist
 rm -f *.gif
-rm -f *.png
 rm -f *.jpg
-rm -f *.sh
+rm -f *.json
+rm -f *.js
+rm -f *.md
+rm -f *.neon
+rm -f *.png
 rm -f *.php
+rm -f *.rb
+rm -f *.sh
+rm -f *.xml
+rm -f *.yml
 
 # Move into the SVN temporary folder
 cd "../"$TEMP_SVN_REPO
 
 # Update SVN
+echo "---------------------------------------------------------------------"
 echo "Updating SVN"
 svn update || { echo "Unable to update SVN."; exit 1; }
 
@@ -192,11 +212,11 @@ svn add --force "readme.txt"
 # SVN Commit
 clear
 echo "---------------------------------------------------------------------"
-echo "Showing SVN status."
-echo "---------------------------------------------------------------------"
+echo "SVN Status."
 svn status --show-updates
 
 # Deploy Update
+echo "---------------------------------------------------------------------"
 echo "Committing readme.txt file to WordPress.org..."
 echo "---------------------------------------------------------------------"
 svn commit -m "Updated readme.txt file for version "${VERSION}"" || {
@@ -218,7 +238,7 @@ rm -Rf $ROOT_PATH$TEMP_GITHUB_REPO
 rm -Rf $ROOT_PATH$TEMP_SVN_REPO
 
 # Done
-echo "Update Done."
+echo "Update Done!"
 echo "---------------------------------------------------------------------"
 read -p "Press [ENTER] to close program."
 
