@@ -2,7 +2,7 @@
 
 A simple script to update the readme.txt file in the trunk or any tagged version from your GitHub repository to your WordPress.org plugin SVN.
 
-## Overview 🔔
+## 🔔 Overview
 
 Sometimes you just want to update the readme.txt file so that you are up to date with the latest release of WordPress or you want to correct some spelling or change a link instead of a full plugin release. This allows you to do that.
 
