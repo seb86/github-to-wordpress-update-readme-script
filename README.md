@@ -29,12 +29,6 @@ This script will pull down your remote GIT and the SVN you want to update, copy 
 
 Before or that it asks a few questions to setup the process of the script such as the ROOT Path of the plugin your GitHub username, repository slug and so on.
 
-To use it you must:
-
-1. Host your code on GitHub
-2. Already have a WordPress.org SVN repository setup for your plugin.
-3. Have both GIT and SVN setup on your machine and available from the command line.
-
 
 ## Getting started
 
@@ -87,4 +81,4 @@ Thank you for your support! 🙌
 ## Final Notes
 
 - This will checkout the remote version of your GitHub repository.
-- Use at your own risk of course :smile:
+- Use at your own risk of course 😄
